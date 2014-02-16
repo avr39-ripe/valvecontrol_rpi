@@ -106,11 +106,8 @@ class ValveControl():
         self.read_conf_file()
 
         ##START REST WEB
-        rest_app_settings = {
-            "template_path": settings.TEMPLATE_PATH,
-            "static_path": settings.TEMPLATE_PATH,
-            "debug": settings.DEBUG
-        }
+        rest_app_settings = dict(template_path=settings.TEMPLATE_PATH, static_path=settings.STATIC_PATH,
+                                 debug=settings.DEBUG)
         rest_app = tornado.web.Application([
                                            (r"/", MainHandler, dict(valvecontroll=self)),
                                            (r"/config", ConfigHandler, dict(valvecontroll=self)),
