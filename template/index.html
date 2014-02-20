@@ -4,21 +4,35 @@
         <title>Valve Control</title>
         <script type="text/javascript" src="/static/jquery-1.10.2.min.js"></script>
         <script type="text/javascript">
+        function loadTemp(){
+            $.getJSON("/temp",
+                function(data) {
+                $('#temp').text('Current temperature, C: ' + data.curr_temp );
+            });
+            setTimeout('loadTemp()',5000);
+        }
+
+        function populate(form, data) {
+            $.each(data, function(key, value){
+                $('[name='+key+']', form).val(value);
+            });
+        }
+
         function ConvertFormToJSON(form){
             var array = jQuery(form).serializeArray();
             var json = {};
-    
+
             jQuery.each(array, function() {
             json[this.name] = this.value || '';
             });
-    
+
             return json;
         }
 
-        jQuery(document).on('ready', function() {
+        $(document).ready( function() {
             jQuery('form#config').bind('submit', function(event){
                 event.preventDefault();
-        
+
                 var form = this;
                 var json = ConvertFormToJSON(form);
                 $.ajax({
@@ -30,6 +44,11 @@
                 });
                 return true;
             });
+            loadTemp();
+            $.getJSON('/config',
+                    function(data) {
+                        populate('form#config', data);
+                    });
         });
         </script>
     </head>
@@ -39,30 +58,19 @@
         <form id="config">
             <p style="text-align:center">
             <label for="temp_set">Target temperature, C:</label>
-            <input id="temp_set" name="temp_set" type="text" value="36.0"><br>
+            <input id="temp_set" name="temp_set" type="text"><br>
             <label for="temp_delta">Target temperature delta, C:</label>
-            <input id="temp_delta" name="temp_delta" type="text" value="1.5"><br>
+            <input id="temp_delta" name="temp_delta" type="text"><br>
             <label for="delay">Delay of iteration time, sec:</label>
-            <input id="delay" name="delay" type="text" value="5.0"><br>
+            <input id="delay" name="delay" type="text"><br>
             <label for="missed_delay">Delay to off the valve, sec:</label>
-            <input id="missed_delay" name="missed_delay" type="text" value="5.0"><br>
+            <input id="missed_delay" name="missed_delay" type="text" ><br>
             <label for="missed_stabilize_delay">Delay for temperature stabilization, sec:</label>
-            <input id="missed_stabilize_delay" name="missed_stabilize_delay" type="text" value="15.0"><br>
+            <input id="missed_stabilize_delay" name="missed_stabilize_delay" type="text"><br>
             <br />
             <input type="submit" value="Apply">
             </p>
         </form>
         <h2 style="text-align:center" id='temp'>TEMP</h2>
-        <script>
-             $( document ).ready(loadTemp());
-        
-            function loadTemp(){
-                $.getJSON("/temp", 
-                    function(data) {
-                    $('#temp').text('Current temperature, C: ' + data.curr_temp );
-                }); 
-                setTimeout("loadTemp()",5000);
-            }
-        </script>
     </body>
 </html>
